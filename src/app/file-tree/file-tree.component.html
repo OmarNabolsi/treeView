@@ -1,0 +1,67 @@
+<mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+
+  <mat-tree-node *matTreeNodeDef="let node;" matTreeNodePadding matTreeNodeToggle (contextmenu)="onContextMenu($event, node)">
+    <button mat-icon-button disabled style="max-width: 20px"></button>
+    {{ node.name }}
+  </mat-tree-node>
+
+  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding (contextmenu)="onContextMenu($event, node)">
+    <button
+      mat-icon-button
+      matTreeNodeToggle
+      [attr.aria-label]="'toggle ' + node.name"
+    >
+      <mat-icon class="mat-icon-rtl-mirror">
+        {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
+      </mat-icon>
+    </button>
+    {{ node.name }}
+    <div style="position: fixed"
+      [style.left]="menuPosition.x"
+      [style.top]="menuPosition.y"
+      [matMenuTriggerFor]="menu"
+      [matMenuTriggerData]="{item: node}">
+    </div>
+  </mat-tree-node>
+
+
+
+  <mat-tree-node *matTreeNodeDef="let node; when: isNew" matTreeNodePadding>
+    <div *ngIf="node.isNew">
+      <mat-form-field>
+        <input matInput #itemValue [placeholder]="getPlaceHolder(node)" [value]="node.name" />
+      </mat-form-field>
+      <button
+        mat-button
+        *ngIf="itemValue.value !== ''"
+        (click)="saveFile(node, itemValue.value);"
+      >
+        Save
+      </button>
+    </div>
+  </mat-tree-node>
+</mat-tree>
+
+
+<mat-menu #menu="matMenu">
+  <ng-template matMenuContent let-item="item">
+    <button mat-menu-item *ngIf="item.type === 'root'" (click)="addFile(item, 'entity');">
+      Add New Entity
+    </button>
+    <button mat-menu-item *ngIf="item.type === 'entity'" (click)="addFile(item, 'repo');">
+      Add New Repository
+    </button>
+    <button mat-menu-item *ngIf="item.type === 'repo'" (click)="addFile(item, 'folder');">
+      Add New Folder
+    </button>
+    <button mat-menu-item *ngIf="item.type === 'repo'" (click)="addFile(item, 'docType');">
+      Add New Document Type
+    </button>
+    <button mat-menu-item (click)="rename(item)">
+      Edit
+    </button>
+    <button mat-menu-item>
+      Manage Permissions
+    </button>
+  </ng-template>
+</mat-menu>
